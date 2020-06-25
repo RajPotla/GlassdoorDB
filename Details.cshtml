@@ -1,0 +1,109 @@
+﻿@model Glassdoor.Models.Review
+
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <link href="~/Description/Css/jquery.rateyo.min.css" rel="stylesheet" type="text/css" />
+    <script>src = "~/Description/Js/jquery.min.js"</script>
+    <script>src = "~/Description/Js/jquery.rateyo.min.js"</script>
+    <script>
+        $(function () {
+
+            $("#rateYo").rateYo({
+                rating: 0,
+                numStars: 5,
+                maxValue: 5,
+                halfStar: true,
+                onChange: function (rating, rateYoInstance) {
+                    $('#rating').val(rating);
+                }
+            });
+        });
+    </script>
+
+
+</head>
+
+<body>
+    <section>
+        <h1>Details for @Model.Title</h1>
+
+    </section>
+    <h3>Rating and Comments</h3>
+    <table border="1" cellpadding="2" cellspacing="2">
+        @{ int i = 1; }
+        @foreach (var review in ViewBag.Review.Review)
+        {
+            <tr>
+                <td>
+                    @review.User.id
+                    <br />
+                    <script>
+                        $(function () {
+
+                            $('#@("rating" + i)').rateYo({
+                                rating: @review.Rating,
+                                readOnly: true
+                        });
+                    </script> 
+                    <div id="@("rating" + i)"></div>
+                    <br />
+                    @review.Rating
+                    <br />
+                    @review.Description
+                </td>
+            </tr>
+            i++;
+        }
+
+    </table>
+
+    @if(Session["User"] == null)
+        {
+        <a href="@Url.Action("Login", "User")">Login to post your comments</a>
+        }
+     else
+        {
+        using (Html.BeginForm("SendReview", "ReviewManagement", FormMethod.Post))
+            {
+            <table cellpadding="2" cellspacing="2">
+                    <tr>
+                        <td valign="top">Rating</td>
+                        <td>
+                            <div id="rateYo"></div>
+                            <input type="hidden" id="rating" name="rating"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top">Description</td>
+                        <td>@Html.TextAreaFor(model=>model.Description, new { col = 20, row = 5 })</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>
+                            <input type="submit" value="Send"/>
+                            @Html.HiddenFor(model => model.Job_ID)
+                        </td>
+                    </tr>
+                </table>
+            }
+        }
+
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+
+    <footer>
+        <a href="/reviews/index">Home Page</a>
+    </footer>
+</body>
+</html>
